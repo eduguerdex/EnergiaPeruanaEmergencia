@@ -22,10 +22,24 @@ from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.properties import StringProperty
 from kivy.lang import Builder
+from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivy.core.window import Window
+from kivy.uix.screenmanager import ScreenManager, Screen
+
+Window.size = (720, 900)  # establece el tamaño de la ventana en pixeles
 
 ENLACE=''
 # Configuración de Firebase
 config = {
+  'apiKey': "AIzaSyD2Jmtv9TvQZ2Q91CCZ1whlt7WHwt7LL7w",
+  'authDomain': "emergenciasep.firebaseapp.com",
+  'projectId': "emergenciasep",
+  "databaseURL": "https://emergenciasep-default-rtdb.firebaseio.com",
+  'storageBucket': "emergenciasep.appspot.com",
+  'messagingSenderId': "375827931921",
+  'appId': "1:375827931921:web:93297ecdcb22796a1022b0",
+  'measurementId': "G-1RVF3JHFBY"
 }
 
 firebase = pyrebase.initialize_app(config)
@@ -38,19 +52,19 @@ class MainScreen(Screen):
     nombre_usuario = StringProperty('')
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = BoxLayout(orientation="vertical")
-        self.label = Label(text="Ingresa tu nombre:",font_size=40)
-        self.text_input = TextInput(size_hint=(1, 0.5),font_size=40)
-        self.ids['test'] = self.text_input
-        self.button = Button(text="Comprobar", on_press=self.comprobar_usuario,font_size=40)
+        # self.layout = BoxLayout(orientation="vertical")
+        # self.label = Label(text="Ingresa tu nombre:",font_size=40)
+        # self.text_input = TextInput(size_hint=(1, 0.5),font_size=40)
+        # self.ids['test'] = self.text_input
+        # self.button = Button(text="Comprobar", on_press=self.comprobar_usuario,font_size=40)
 
-        # Agregando widgets al layout
-        self.layout.add_widget(self.label)
-        self.layout.add_widget(self.text_input)
-        self.layout.add_widget(self.button)
+        # # Agregando widgets al layout
+        # self.layout.add_widget(self.label)
+        # self.layout.add_widget(self.text_input)
+        # self.layout.add_widget(self.button)
 
-        # Agregando el layout al screen
-        self.add_widget(self.layout)
+        # # Agregando el layout al screen
+        # self.add_widget(self.layout)
         
     # Función que se ejecuta al presionar el botón
     def comprobar_usuario(self, instance):
@@ -66,6 +80,7 @@ class MainScreen(Screen):
             self.manager.current = "second"
         else:
             print("El usuario no existe en Firebase")
+    pass
 
 class SecondScreen(Screen):
     print("Cambio")
@@ -86,9 +101,10 @@ class SecondScreen(Screen):
         # Creamos un Layout para los botones de opciones a la derecha
         self.opciones_derecha_layout = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.5, 1))
         # Creamos un botón rojo para enviar el mensaje
-        self.btn_enviar = Button(text='Enviar Mensaje', background_color=(1, 0, 0, 1), size_hint=(1, 0.25), font_size=30)
+        self.btn_enviar = Button(background_normal='alerta_roja.png', size_hint=(1, 0.25), font_size=30)
         # Creamos un Label para la fecha y hora
-        self.lbl_fecha_hora = Label(text='Fecha y hora:', font_size=20, size_hint=(1, 0.1))
+        self.lbl_fecha_hora = Label(text='Fecha y hora:', font_size=20, size_hint=(0.8, 0.1))
+        
         # Creamos un Label para el nombre del usuario
         self.lbl_usuario = Label(text="", font_size=30, size_hint=(1, 0.1))
         # Creamos los botones de opciones
