@@ -1,0 +1,59 @@
+#:import Label kivy.uix.label.Label
+#:import TextInput kivy.uix.textinput.TextInput
+#:import Button kivy.uix.button.Button
+#:import BoxLayout kivy.uix.boxlayout.BoxLayout
+#:import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout
+
+<MainScreen>:
+    nombre_usuario: ''
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: (1, 1)
+            Image:
+                source: 'EP_logo.png'
+                size: root.width, root.height
+                allow_stretch: True
+                keep_ratio: False
+            Label:
+                text: 'Ingresa tu nombre:'
+                font_size: 40
+
+        MDBoxLayout:
+            orientation: 'horizontal'
+            MDBoxLayout:
+                size_hint: (None, None)
+                size: (dp(100), dp(0))
+                md_bg_color: (0, 0, 0, 1)
+            TextInput:
+                id: test
+                size_hint: (1, 0.5)
+                font_size: 80
+            MDBoxLayout:
+                size_hint: (None, None)
+                size: (dp(100), dp(100))
+                md_bg_color: (0, 0, 0, 1)
+        MDBoxLayout:
+            orientation: 'horizontal'
+            padding: 20
+            MDBoxLayout:
+                size_hint: (None, None)
+                size: (dp(200), dp(20))
+                md_bg_color: (0, 0, 0, 1)
+            Button:
+                text: 'Entrar'
+                id: comprobar_button
+                font_size: 40
+                size_hint: None, None
+                size: dp(300), dp(100)
+                background_color: 1, 0, 0, 1  # color rojo
+                color: 1, 1, 1, 1  # color blanco
+                on_press: root.comprobar_usuario(self)
+            MDBoxLayout:
+                size_hint: (None, None)
+                size: (dp(50), dp(20))
+                md_bg_color: (0, 0, 0, 1)
+
+
+
