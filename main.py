@@ -1,22 +1,12 @@
-import kivy
-kivy.require('1.11.1')
 from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager
-from kivy.uix.screenmanager import Screen
-from kivy.uix.label import Label
+from kivy.uix.screenmanager import Screen, ScreenManager
+from jnius import autoclass
+from plyer.platforms.android import activity
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
-import pyrebase
-import pywhatkit as pw
-from datetime import datetime
-import time
-from time import gmtime, strftime
-import pyautogui as pg
-from geopy.geocoders import Nominatim
-import geocoder
-from geopy.exc import GeocoderTimedOut
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.properties import StringProperty
@@ -25,8 +15,17 @@ from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen
-
-Window.size = (720, 900)  # establece el tamaño de la ventana en pixeles
+import pyrebase
+from kivy.uix.widget import Widget
+from kivy.clock import Clock
+from kivy.properties import StringProperty
+from kivy.lang import Builder
+from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivy.core.window import Window
+from kivy.uix.screenmanager import ScreenManager, Screen
+from datetime import datetime
+import time
 
 ENLACE=''
 # Configuración de Firebase
@@ -44,14 +43,26 @@ config = {
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 Builder.load_file('main.kv')
-class ScreenManagement(ScreenManager):
-    pass
+Intent = autoclass('android.content.Intent')
+Uri = autoclass('android.net.Uri')
+intent = Intent()
+intent.setAction(Intent.ACTION_VIEW)
 
 class MainScreen(Screen):
-    nombre_usuario = StringProperty('')
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)        
-    # Función que se ejecuta al presionar el botón
+        super().__init__(**kwargs)
+        # layout = BoxLayout(orientation="vertical")
+        # label = Label(text="Ingresa tu nombre:")
+        # text_input = TextInput(size_hint=(1, 0.1))
+        # self.ids['test'] = text_input
+        # button = Button(text="Comprobar", on_press=self.comprobar_usuario)
+
+        # layout.add_widget(label)
+        # layout.add_widget(text_input)
+        # layout.add_widget(button)
+
+        # self.add_widget(layout)
+
     def comprobar_usuario(self, instance):
         # Obtener los usuarios de la base de datos
         usuarios = db.child("users").get().val()
@@ -63,12 +74,10 @@ class MainScreen(Screen):
             self.manager.get_screen("second").nombre_usuario = nombre_usuario
             print(nombre_usuario)
             self.manager.current = "second"
-        else:
-            print("El usuario no existe en Firebase")
     pass
 
+
 class SecondScreen(Screen):
-    print("Cambio")
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Creamos un Layout principal vertical
@@ -77,37 +86,37 @@ class SecondScreen(Screen):
         self.mensajeria = BoxLayout(orientation='vertical', spacing=10, size_hint=(1, 0.1))
         self.texto_superior = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.1))
         # Creamos un Layout para los textos a la izquierda
-        self.opciones_izquierda_superior = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.5, 1))
+        self.opciones_izquierda_superior = BoxLayout(orientation='vertical', spacing=30, size_hint=(0.5, 1))
         # Creamos un Layout para los botones de opcionestextos a la derecha
-        self.opciones_derecha_superior = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.5, 1))
+        self.opciones_derecha_superior = BoxLayout(orientation='vertical', spacing=30, size_hint=(0.5, 1))
         # Creamos un Layout para los botones de opciones
         self.opciones_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.1))
         # Creamos un Layout para los botones de opciones a la izquierda
-        self.opciones_izquierda_layout = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.5, 1))
+        self.opciones_izquierda_layout = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.8, 1))
         # Creamos un Layout para los botones de opciones a la derecha
-        self.opciones_derecha_layout = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.5, 1))
+        self.opciones_derecha_layout = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.8, 1))
         # Creamos un botón rojo para enviar el mensaje
-        self.btn_enviar = Button(background_normal='alerta_roja.png',background_down='alerta_roja.png',size_hint=(1, 0.65), font_size=30)
+        self.btn_enviar = Button(background_normal='alerta_roja.png',background_down='alerta_roja.png',size_hint=(1, 0.25), font_size=40)
         # Creamos un Label para la fecha y hora
-        self.lbl_fecha_hora = Label(text='Fecha y hora:', font_size=20, size_hint=(0.8, 0.1))
+        self.lbl_fecha_hora = Label(text='Fecha y hora:', font_size=80, size_hint=(0.8, 0.1))
         # Creamos un Label para el nombre del usuario
-        self.lbl_usuario = Label(text="", font_size=30, size_hint=(1, 0.1))
+        self.lbl_usuario = Label(text="", font_size=60, size_hint=(1, 0.1))
         # Creamos los botones de opciones
-        self.btn_opcion1 = ToggleButton(text='Lesiones corporales', size_hint=(1, None), height=50,font_size=25)
-        self.btn_opcion2 = ToggleButton(text='Daños a terceros', size_hint=(1, None), height=50,font_size=25)
-        self.btn_opcion3 = ToggleButton(text='Choque de vehículos', size_hint=(1, None), height=50,font_size=25)
-        self.btn_opcion4 = ToggleButton(text='Propiedad de 3ero dañada', size_hint=(1, None), height=50,font_size=25)
-        self.btn_opcion5 = ToggleButton(text='Daño material', size_hint=(1, None), height=50,font_size=25)
-        self.btn_opcion6 = ToggleButton(text='Accidente ambiental', size_hint=(1, None), height=50,font_size=25)
+        self.btn_opcion1 = ToggleButton(text='Lesiones\n corporales', size_hint=(1, None), height=170,font_size=55)
+        self.btn_opcion2 = ToggleButton(text='Daños a \nterceros', size_hint=(1, None), height=170,font_size=55)
+        self.btn_opcion3 = ToggleButton(text='Choque de \nvehículos', size_hint=(1, None), height=170,font_size=55)
+        self.btn_opcion4 = ToggleButton(text='Propiedad de \n3ero dañada', size_hint=(1, None), height=170,font_size=55)
+        self.btn_opcion5 = ToggleButton(text='Daño \nmaterial', size_hint=(1, None), height=170,font_size=55)
+        self.btn_opcion6 = ToggleButton(text='Accidente \nambiental', size_hint=(1, None), height=170,font_size=55)
         # Agregamos los widgets a los layouts correspondientes
         self.opciones_izquierda_superior.add_widget(self.lbl_usuario)
         # Crear Label para la fecha y hora
-        self.lbl_fecha_hora = Label(text="", font_size=30, size_hint=(1, 0.1))
+        self.lbl_fecha_hora = Label(text="", font_size=60, size_hint=(1, 0.1))
         self.opciones_derecha_superior.add_widget(self.lbl_fecha_hora)
         # Iniciar el reloj para actualizar el Label cada segundo
         Clock.schedule_interval(self.update_fecha_hora, 1)  
-        self.lbl_mensaje_enviado = Label(text="Selecciona consecuencias y pulsa ALERTA", font_size=30, size_hint=(1, None), height=20, opacity=1, color=(1, 1, 1, 1), valign='middle')
-        self.separacion = Label(text="       ", font_size=30, size_hint=(1, None), height=60, opacity=1, color=(1, 1, 1, 1), valign='middle')
+        self.lbl_mensaje_enviado = Label(text="Selecciona consecuencias \n y pulsa ALERTA", font_size=60, size_hint=(1, None), height=20, opacity=1, color=(1, 1, 1, 1), valign='middle')
+        self.separacion = Label(text="       ", font_size=30, size_hint=(1, None), height=150, opacity=1, color=(1, 1, 1, 1), valign='middle')
         self.texto_superior.add_widget(self.opciones_izquierda_superior)
         self.texto_superior.add_widget(self.opciones_derecha_superior)
         self.opciones_izquierda_layout.add_widget(self.btn_opcion1)
@@ -146,19 +155,6 @@ class SecondScreen(Screen):
             else:
                 lead = '+51920478074'
 
-            # Obtener texto concatenado de los botones ToggleButton seleccionados
-            texto_mensaje= 'https://call.whatsapp.com/voice/69dbRR1ZjSrsrC2ETWjTc6'
-            print(texto_mensaje)
-            
-            # Enviamos el mensaje de WhatsApp a los destinatarios especificados
-            pw.sendwhatmsg_instantly(lead, texto_mensaje)
-            
-            # Esperamos un tiempo antes de cerrar la ventana
-            time.sleep(10)
-            
-            # Cerramos la ventana de WhatsApp
-            pg.hotkey('ctrl', 'w')
-
         # Asignamos la función enviar_mensaje al botón de enviar
         def enviar_mensaje():
             global ENLACE, localidad
@@ -176,8 +172,14 @@ class SecondScreen(Screen):
                 opciones_seleccionadas.append(self.btn_opcion3.text)
             if self.btn_opcion4.state == 'down':
                 opciones_seleccionadas.append(self.btn_opcion4.text)
+            if self.btn_opcion5.state == 'down':
+                opciones_seleccionadas.append(self.btn_opcion5.text)
+            if self.btn_opcion6.state == 'down':
+                opciones_seleccionadas.append(self.btn_opcion6.text)
+            
             Concat=(', '.join(opciones_seleccionadas))
-            get_location()
+            Concat=Concat.replace("\n", "")
+            # get_location()
             texto= '*ALERTA!* \n El trabajador '+ usuario +' a sufrido un accidente con fecha y hora: '+str(now)+' Las consecuencias conocidas: '    
             texto_mensaje = texto+Concat +'.\n El accidente se ha reportado aproximadamente desde: '+str(ENLACE)
             # Enviamos el mensaje de WhatsApp a los destinatarios especificados
@@ -188,15 +190,17 @@ class SecondScreen(Screen):
                 print(texto_mensaje)
                 for lead in numeros_telefono:
                     time.sleep(5)
-                    pw.sendwhatmsg_instantly(f"+{lead}", texto_mensaje)
-                    if first:
-                        time.sleep(7)
-                        first=False
-                    width,height = pg.size()
-                    pg.click(width/2,height/2)
-                    time.sleep(8)
-                    pg.press('enter')
-                    time.sleep(8)
+                    intent.setData(Uri.parse('https://api.whatsapp.com/send?text='+texto_mensaje+'&phone='+lead))
+                    activity.startActivity(intent)
+                    # pw.sendwhatmsg_instantly(f"+{lead}", texto_mensaje)
+                    # if first:
+                    #     time.sleep(7)
+                    #     first=False
+                    # width,height = pg.size()
+                    # pg.click(width/2,height/2)
+                    # time.sleep(8)
+                    # pg.press('enter')
+                    # time.sleep(8)
                 llamada()
             else: 
                 print("Selecciona consecuencias conocidas") 
@@ -204,9 +208,12 @@ class SecondScreen(Screen):
                 self.lbl_mensaje_enviado.opacity = 1                 
 
         self.btn_enviar.bind(on_press=lambda x: enviar_mensaje())
+    
+
     def on_enter(self, *args):
         if hasattr(self, "nombre_usuario"):
-            self.lbl_usuario.text = f"Bienvenido, {self.nombre_usuario}"
+            self.lbl_usuario.text = f"Bienvenido,\n {self.nombre_usuario}!"
+
     def update_fecha_hora(self, dt):
                 # Obtener la fecha y hora actual
                 now = datetime.now()
@@ -230,17 +237,16 @@ class SecondScreen(Screen):
         
         # Programa el restablecimiento de la imagen después de 2 segundos
         Clock.schedule_once(lambda dt: self.restablecer_imagen(instance), 2)
-
     def restablecer_imagen(self, instance):
         instance.background_normal = 'alerta_roja.png'
         instance.background_down = 'alerta_pulso.png'
-
 class MyApp(App):
     def build(self):
         screen_manager = ScreenManager()
-        screen_manager.add_widget(MainScreen(name='main'))
-        screen_manager.add_widget(SecondScreen(name='second'))
+        screen_manager.add_widget(MainScreen(name="main"))
+        screen_manager.add_widget(SecondScreen(name="second"))
         return screen_manager
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     MyApp().run()
